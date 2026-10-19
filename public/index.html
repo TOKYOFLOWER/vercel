@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vercel Hobby サンプル</title>
+<style>
+  :root { --bg:#faf7f2; --card:#fff; --ink:#2b2b2b; --muted:#777; --accent:#c2185b; --line:#e8e1d8; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#1b1a19; --card:#262422; --ink:#eee; --muted:#aaa; --accent:#f06292; --line:#3a3734; } }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif; background:var(--bg); color:var(--ink); line-height:1.6; }
+  main { max-width:760px; margin:0 auto; padding:32px 16px 64px; }
+  h1 { font-size:1.6rem; margin:0 0 4px; }
+  .sub { color:var(--muted); margin:0 0 28px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px; margin-bottom:16px; }
+  .card h2 { font-size:1.05rem; margin:0 0 4px; }
+  .card p { margin:0 0 12px; color:var(--muted); font-size:.92rem; }
+  code { background:var(--bg); padding:1px 6px; border-radius:4px; font-size:.85rem; }
+  button { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:8px 14px; font-size:.9rem; cursor:pointer; }
+  input { border:1px solid var(--line); border-radius:8px; padding:8px; font-size:.9rem; width:100%; max-width:260px; background:var(--bg); color:var(--ink); }
+  pre { background:var(--bg); border-radius:8px; padding:10px; overflow:auto; font-size:.8rem; margin:10px 0 0; white-space:pre-wrap; word-break:break-all; min-height:1em; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Vercel Hobby サンプル</h1>
+  <p class="sub">静的ページ＋API＋Edge＋Cron＋リダイレクトを1つのプロジェクトで試せます。</p>
+
+  <div class="card">
+    <h2>① 静的ホスティング</h2>
+    <p>このページ自体が <code>public/index.html</code> です。HTTPSは自動で有効になります。</p>
+  </div>
+
+  <div class="card">
+    <h2>② Serverless Function（Node.js）</h2>
+    <p><code>/api/hello?name=〇〇</code> サーバー側でJSONを返します。</p>
+    <div class="row"><input id="name" placeholder="名前を入力" value="とみぃ"><button onclick="call('/api/hello?name='+encodeURIComponent(document.getElementById('name').value),'o2')">実行</button></div>
+    <pre id="o2"></pre>
+  </div>
+
+  <div class="card">
+    <h2>③ Edge Function</h2>
+    <p><code>/api/edge</code> 最寄りのエッジで実行され、アクセス元の国・地域などを返します。</p>
+    <button onclick="call('/api/edge','o3')">実行</button>
+    <pre id="o3"></pre>
+  </div>
+
+  <div class="card">
+    <h2>④ 環境変数</h2>
+    <p><code>/api/env</code> ダッシュボードで設定した <code>SHOP_NAME</code> を読みます（未設定なら既定値）。</p>
+    <button onclick="call('/api/env','o4')">実行</button>
+    <pre id="o4"></pre>
+  </div>
+
+  <div class="card">
+    <h2>⑤ Webhook 受け口（POST）</h2>
+    <p><code>/api/webhook</code> LINEや決済通知の受信を想定したPOSTエンドポイントです。受け取った内容を返します。</p>
+    <button onclick="post()">テスト送信</button>
+    <pre id="o5"></pre>
+  </div>
+
+  <div class="card">
+    <h2>⑥ Cron Job</h2>
+    <p><code>vercel.json</code> で毎日9:00（JST）に <code>/api/cron</code> を実行します。実行履歴はダッシュボードの「Logs」で確認できます。</p>
+    <button onclick="call('/api/cron','o6')">手動で叩いてみる</button>
+    <pre id="o6"></pre>
+  </div>
+
+  <div class="card">
+    <h2>⑦ リダイレクト・ヘッダー</h2>
+    <p><code>/shop</code> は <code>vercel.json</code> で外部URLへ転送されます（短縮URL的な使い方）。</p>
+    <a href="/shop"><button>/shop を開く</button></a>
+  </div>
+</main>
+<script>
+async function call(url, out){
+  const el=document.getElementById(out); el.textContent='…';
+  try{ const r=await fetch(url); el.textContent=JSON.stringify(await r.json(),null,2); }
+  catch(e){ el.textContent='エラー: '+e.message; }
+}
+async function post(){
+  const el=document.getElementById('o5'); el.textContent='…';
+  try{
+    const r=await fetch('/api/webhook',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event:'order.created',orderId:'TEST-001',item:'スタンディングブーケ'})});
+    el.textContent=JSON.stringify(await r.json(),null,2);
+  }catch(e){ el.textContent='エラー: '+e.message; }
+}
+</script>
+</body>
+</html>

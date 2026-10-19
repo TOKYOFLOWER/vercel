@@ -1,0 +1,16 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["hnd1"],
+  "crons": [
+    { "path": "/api/cron", "schedule": "0 0 * * *" }
+  ],
+  "redirects": [
+    { "source": "/shop", "destination": "https://www.rakuten.co.jp/", "permanent": false }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "no-store" }]
+    }
+  ]
+}
