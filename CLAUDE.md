@@ -2,6 +2,10 @@
 Vercel（Hobby）にデプロイしているサンプルサイト。GitHubと連携しており、pushすると自動でデプロイされる。
 オーナーはスマートフォンのClaudeアプリから指示を出し、ブラウザで結果を確認する。
 
+- 本番URL: https://vercel-phi-nine-60.vercel.app
+- ページ下部に「本番／プレビュー・ブランチ・コミット」を表示している（/api/version）。
+  変更が反映されたかはここで確認できる。
+
 ## 構成
 - public/index.html … トップページ（静的）
 - api/*.js … Serverless / Edge Functions

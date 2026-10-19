@@ -20,6 +20,9 @@
   input { border:1px solid var(--line); border-radius:8px; padding:8px; font-size:.9rem; width:100%; max-width:260px; background:var(--bg); color:var(--ink); }
   pre { background:var(--bg); border-radius:8px; padding:10px; overflow:auto; font-size:.8rem; margin:10px 0 0; white-space:pre-wrap; word-break:break-all; min-height:1em; }
   .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .ver { margin-top:28px; font-size:.78rem; color:var(--muted); text-align:center; }
+  .badge { display:inline-block; padding:1px 8px; border-radius:99px; font-weight:600; color:#fff; margin-right:6px; }
+  .badge.production { background:#2e7d32; } .badge.preview { background:#ef6c00; } .badge.local { background:#777; }
 </style>
 </head>
 <body>
@@ -72,8 +75,20 @@
     <p><code>/shop</code> は <code>vercel.json</code> で外部URLへ転送されます（短縮URL的な使い方）。</p>
     <a href="/shop"><button>/shop を開く</button></a>
   </div>
+
+  <footer id="ver" class="ver">バージョン情報を取得中…</footer>
 </main>
 <script>
+(async () => {
+  const el = document.getElementById('ver');
+  try {
+    const v = await (await fetch('/api/version')).json();
+    const label = { production: '本番', preview: 'プレビュー', local: 'ローカル' }[v.env] || v.env;
+    el.innerHTML = '';
+    const b = document.createElement('span'); b.className = 'badge ' + v.env; b.textContent = label;
+    el.append(b, `${v.branch} @ ${v.commit} — ${v.message.split('\n')[0]}`);
+  } catch { el.textContent = 'バージョン情報を取得できませんでした'; }
+})();
 async function call(url, out){
   const el=document.getElementById(out); el.textContent='…';
   try{ const r=await fetch(url); el.textContent=JSON.stringify(await r.json(),null,2); }
